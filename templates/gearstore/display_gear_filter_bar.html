@@ -1,0 +1,14 @@
+{% load static %}
+{% load gearstore_template_tags %}
+
+{% block head_block %}
+    <script src="{% static 'gearstore/js/show_gear_property.js' %}"></script>
+{% endblock %}
+
+{% if options %}
+    <div class="order-filter-bar">
+        {% for option in options %}
+            <button class="{% if option == "all" %}rainbow-anim {% endif %}gear-filter-{{ property_type }}-button" onclick="updateGearView('{{ option }}', '{{ property_type }}')" id="gear-filter-{{ property_type }}-button-{{ option }}">{{ options|dict_lookup:option }}</button>
+        {% endfor %}
+    </div>
+{% endif %}

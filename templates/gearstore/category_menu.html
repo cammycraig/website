@@ -1,0 +1,75 @@
+{% extends 'gearstore/base.html' %}
+{% load static %}
+{% load gearstore_template_tags %}
+
+{% block head_block %}
+    <script src="{% static 'gearstore/js/show_popup.js' %}"></script>
+{% endblock %}
+
+{% block title_block %}
+    Borrow Gear
+{% endblock %}
+
+{% block body_block %}
+    {% if admin %}
+        <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="add_category_popup">
+            <button id="hide_form_button" onclick="hide_generic_popup('add_category_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+            <h1 id="page-header">Add a Category</h1>
+            <div class="form-value">
+                <form enctype="multipart/form-data" id='category_form' method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="add-category" value="add-category">
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <Label for="">Category Name</Label>
+                        </div>
+                        <input type="text" name="name" placeholder="Category name" required>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="mail-outline"></ion-icon>
+                            <Label for="">Description</Label>
+                        </div>
+                        <input type="text" name="description" placeholder="Description" required>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="image-outline"></ion-icon>
+                            <Label for="">Category Image</Label>
+                        </div>
+                        <input type="file" name="picture" accept="image/*">
+                    </div>
+                    <div class="submit-button">
+                        <button>Add</button>
+                    </div>
+                </form>
+            </div>
+            {% if errors %}
+                <ul class='form-errors'>
+                    <li class="error-warning">An error has occurred:</li>
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <br>
+            {% endif %}
+        </div>
+    {% endif %}
+    <h1 id="page-header">Borrow Gear</h1>
+    <p>Here you can see the types of gear available for borrowing.</p>
+    {% if categories or admin %}
+        <div class="menu-container">
+            {% if categories %}
+                {% for c in categories %}
+                    <a href="{% url 'view-category' c.slug %}" class="menu-card-link" style="background-image: url('/media/{{ c.picture }}')"><div class="menu-card"><p>{{ c.name }}</p></div></a>
+                {% endfor %}
+            {% endif %}
+            {% if admin %}
+                <a id="add-button" onclick="show_generic_popup('add_category_popup')" class="menu-card-link" style="background-image: url('{% static 'gearstore/images/plus_symbol.png' %}')"><div class="menu-card"><p></p></div></a>
+            {% endif %}
+        </div>
+    {% else %}
+        <p><strong>There are no categories present.</strong><p>
+    {% endif %}
+{% endblock %}

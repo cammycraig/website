@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class GearstoreAppConfig(AppConfig):
-    name = 'gearstore'
+    name = 'gearstore_app'

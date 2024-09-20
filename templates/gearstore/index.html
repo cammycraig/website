@@ -1,0 +1,206 @@
+{% extends '../gearstore/base.html' %}
+{% load static %}
+{% load gearstore_template_tags %}
+
+{% block head_block %}
+    <script src="{% static 'gearstore/js/show_popup.js' %}"></script>
+{% endblock %}
+
+{% block title_block %}
+    Home
+{% endblock %}
+
+{% block body_block %}
+    {% if admin %}
+        <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="edit_home_popup">
+            <button id="hide_form_button" onclick="hide_generic_popup('edit_home_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+            <h1 id="page-header">Edit Home</h1>
+            <div class="form-value">
+                <form enctype="multipart/form-data" id='edit-home-form' method="post">
+                    {% csrf_token %}
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="pencil-outline"></ion-icon>
+                            <Label for="">Site Name</Label>
+                        </div>
+                        <input type="text" name="site-title" placeholder="Site Title"{% if content %}value="{{ content.title }}" {% endif %} required>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="pencil-outline"></ion-icon>
+                            <Label for="">Home Page Text</Label>
+                        </div>
+                        {% if content %}
+                            <textarea type="text" name="home-text" placeholder="Home Page Text" required>{{ content.home_contents }}</textarea>
+                        {% else %}
+                            <textarea type="text" name="home-text" placeholder="Home Page Text" required></textarea>
+                        {% endif %}
+                    </div>
+                    <h1 id="page-header">Site Settings</h1>
+                    <div class="bubble-text">
+                        <p>Please enter the url of the site in order to create QR codes correctly.</p>
+                        <p>Ex. https://gearstore.com</p>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="pencil-outline"></ion-icon>
+                            <Label for="">Site URL</Label>
+                        </div>
+                        <input type="text" name="domain" placeholder="URL"{% if content %}value="{{ content.domain }}" {% endif %} required>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="image-outline"></ion-icon>
+                            <Label for="">Background Image</Label>
+                        </div>
+                        <input type="file" name="background_image" accept="image/*">
+                    </div>
+
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="image-outline"></ion-icon>
+                            <Label for="">Logo Image</Label>
+                        </div>
+                        <input type="file" name="logo_image" accept="image/*">
+                    </div>
+
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="image-outline"></ion-icon>
+                            <Label for="">Icon Image</Label>
+                        </div>
+                        <input type="file" name="icon_image" accept="image/png">
+                    </div>
+
+                    <h1 id="page-header">Edit Sidebar Links</h1>
+                    <div class="bubble-text">
+                        <p>Edit the links which appear on desktop on the right sidebar.</p>
+                    </div>
+                    {% if sidebar_links %}
+                        <br>
+                        {% for sidebar_link in sidebar_links %}
+                            <div class="input-box">
+                                <div class="form-text-wrapper">
+                                    <Label for="">Link Name</Label>
+                                </div>
+                                <input type="text" value="{{ sidebar_link.link_text }}" placeholder="New Link" disabled>
+                            </div>
+                            <div class="input-box">
+                                <div class="form-text-wrapper">
+                                    <Label for="">Link URL</Label>
+                                </div>
+                                <input type="url" value="{{ sidebar_link.url }}" name="new-link-url" placeholder="ie. https://www.google.com" disabled>
+                            </div>
+                            <div class="edit-delete-link-super">
+                                <div class="edit-delete-link">
+                                    <a onclick="show_edit_delete_link_popup('edit', '{{ sidebar_link.id }}', '{{ sidebar_link.link_text }}', '{{ sidebar_link.url }}')"><ion-icon id="edit-button" name="create-outline"></ion-icon></a>
+                                    <a onclick="show_edit_delete_link_popup('delete', '{{ sidebar_link.id }}', '{{ sidebar_link.link_text }}', '{{ sidebar_link.url }}')"><ion-icon id="delete-button" name="trash-outline"></ion-icon></a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="bubble-text">
+                            <p>There are currently no sidebar links.</p>
+                        </div>
+                    {% endif %}
+                    <h1 id="page-header">Add Sidebar Link</h1>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="pencil-outline"></ion-icon>
+                            <Label for="">New Link Name</Label>
+                        </div>
+                        <input type="text" name="new-link-name" placeholder="New Link">
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="pencil-outline"></ion-icon>
+                            <Label for="">New Link URL</Label>
+                        </div>
+                        <input type="url" name="new-link-url" placeholder="ie. https://www.google.com">
+                    </div>
+                    <div class="submit-button">
+                        <button>Submit Changes</button>
+                    </div>
+                </form>
+            </div>
+            {% if errors %}
+                <ul class='form-errors'>
+                    <li class="error-warning">An error has occurred:</li>
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <br>
+            {% endif %}
+        </div>
+
+        <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="delete_link_popup">
+            <button id="hide_form_button" onclick="hide_generic_popup('delete_link_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+            <h1 id="page-header">Delete Link</h1>
+            <div class="form-value">
+                <form enctype="multipart/form-data" id='delete-link-form' method="post">
+                    {% csrf_token %}
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                    <input type="hidden" id="delete-link-id" name="delete-link-id">
+                    <div class="bubble-text">
+                        <p>Enter the admin password to confirm deletion.</p>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <Label for="">Admin Password</Label>
+                        </div>
+                        <input type="password" name="password" placeholder="Admin Password" required>
+                    </div>
+                    <div class="submit-button">
+                        <button>Submit Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="edit_link_popup">
+            <button id="hide_form_button" onclick="hide_generic_popup('edit_link_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+            <h1 id="page-header">Edit Link</h1>
+            <div class="form-value">
+                <form enctype="multipart/form-data" id='edit-link-form' method="post">
+                    {% csrf_token %}
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                    <input type="hidden" id="edit-link-id" name="edit-link-id">
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="pencil-outline"></ion-icon>
+                            <Label for="">Link Text</Label>
+                        </div>
+                        <input type="text" id="edit-link-text" name="edit-link-text" placeholder="Link Text" required>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="pencil-outline"></ion-icon>
+                            <Label for="">Link URL</Label>
+                        </div>
+                        <input type="url" id="edit-link-url" name="edit-link-url" placeholder="Link URL" required>
+                    </div>
+                    <div class="submit-button">
+                        <button>Submit Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+    <h1 id="page-header">Home</h1>
+    {% if content %}
+        <img src="/media/{{ content.logo_image }}" class="picture">
+        <div class="bubble-text">{{ content.home_contents|linebreaks }}</div>
+    {% endif %}
+    {% if admin %}
+        <a id="delete-button-parent" class="edit-delete-button-parent" onclick="show_generic_popup('edit_home_popup')"><ion-icon id="edit-button" class="edit-delete-button" name="create-outline"></ion-icon></a>
+    {% endif %}
+{% endblock %}

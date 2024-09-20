@@ -1,0 +1,27 @@
+{% load gearstore_template_tags %}
+{% if orders|dict_lookup:"Default"|dict_lookup:"bookings" %}
+    {% if booking_views %}
+        {% if orders %}
+            {% show_order_filter_bar orders_without_bookings section %}
+            {% for order in orders %}
+                <div id="booking-section-{{ orders|dict_lookup:order|dict_lookup:"id" }}" style="display: {% if order == "Default" %}block{% else %}none{% endif %}">
+                    {% show_view_filter_bar orders|dict_lookup:order|dict_lookup:"id" booking_views section %}
+                    {% for view in booking_views %}
+                         <div id="bookings-view-{{ view }}">
+                             {% for booking in orders|dict_lookup:order|dict_lookup:"bookings" %}
+                                 {% if booking.status == view %}
+                                    {% show_user_booking_details booking %}
+                                 {% endif %}
+                             {% endfor %}
+                         </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+
+{% else %}
+    <div class="bubble-text">
+        <p id="no-gear-error">There is currently no borrowed gear.</p>
+    </div>
+{% endif %}

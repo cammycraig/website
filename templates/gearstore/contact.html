@@ -1,0 +1,101 @@
+{% extends 'gearstore/base.html' %}
+{% load static %}
+{% load gearstore_template_tags %}
+
+{% block head_block %}
+    <script src="{% static 'gearstore/js/show_popup.js' %}"></script>
+{% endblock %}
+
+{% block title_block %}
+    Contact Us
+{% endblock %}
+
+{% block body_block %}
+    {% if admin %}
+        <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="edit_contact_popup">
+            <h1 id="page-header">Edit Contact</h1>
+            <button id="hide_form_button" onclick="hide_generic_popup('edit_contact_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+            <div class="form-value">
+                <form enctype="multipart/form-data" id='edit-contact-form' method="post">
+                    {% csrf_token %}
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="pencil-outline"></ion-icon>
+                            <Label for="">Contact Page Text</Label>
+                        </div>
+                        {% if content %}
+                            <textarea type="text" name="contact-text" placeholder="Contact Page Text" required>{{ content.contact_contents }}</textarea>
+                        {% else %}
+                            <textarea type="text" name="contact-text" placeholder="Contact Page Text" required></textarea>
+                        {% endif %}
+                    </div>
+
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <Label for="">Contact</Label>
+                        </div>
+                        {% if content %}
+                            <input type="text" name="contact" placeholder="Contact" value="{{ content.contact }}" required>
+                        {% else %}
+                            <input type="text" name="contact" placeholder="Contact" required>
+                        {% endif %}
+                    </div>
+
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <Label for="">Contact Option</Label>
+                        </div>
+                        <div id="dropdown-selector">
+                            <select name="contact-option" id="dropdown" required>
+                            {% if options %}
+                                {% for option in options %}
+                                    {% if option.0 == content.contact_option %}
+                                        <option value="{{ option.0 }}" selected>{{ option.1 }}</option>
+                                    {% else %}
+                                        <option value="{{ option.0 }}">{{ option.1 }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="submit-button">
+                        <button>Submit Changes</button>
+                    </div>
+                </form>
+            </div>
+            {% if errors %}
+                <ul class='form-errors'>
+                    <li class="error-warning">An error has occurred:</li>
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <br>
+            {% endif %}
+        </div>
+        <a id="delete-button-parent" class="edit-delete-button-parent" onclick="show_generic_popup('edit_contact_popup')"><ion-icon id="edit-button" class="edit-delete-button" name="create-outline"></ion-icon></a>
+    {% endif %}
+    <h1 id="page-header">Contact Us</h1>
+    {% if content %}
+        <div class="bubble-text">{{ content.contact_contents|linebreaks }}
+            <br>
+            <p>Please use the following contact to reach out:</p>
+            <br>
+            <div id="contact-container-parent">
+                <div id="contact-container">
+                    <ion-icon name="{{ content.contact_option }}"></ion-icon>
+                    <p>{{ content.contact }}</p>
+                </div>
+            </div>
+            <br>
+        </div>
+    {% endif %}
+{% endblock %}

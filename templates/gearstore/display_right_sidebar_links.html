@@ -1,0 +1,9 @@
+<ul>
+    {% if links %}
+        {% for link in links %}
+            <li class="sidebar-link"><a href="{{ link.url }}" target="_blank">{{ link.link_text }}</a></li>
+        {% endfor %}
+    {% else %}
+        <li class="sidebar-link">There are no links.</li>
+    {% endif %}
+</ul>

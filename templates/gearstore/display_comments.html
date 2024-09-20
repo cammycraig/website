@@ -1,0 +1,145 @@
+{% load static %}
+{% load gearstore_template_tags %}
+
+{% block head_block %}
+    <script src="{% static 'gearstore/js/show_popup.js' %}"></script>
+{% endblock %}
+
+{% if comments %}
+    <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="edit_comment_form">
+        <button id="hide_form_button" onclick="hide_popup('edit')"><ion-icon name="close-circle-outline"></ion-icon></button>
+        <h1 id="page-header">Edit Comment</h1>
+        <div class="form-value">
+            <form enctype="multipart/form-data" id='edit_comment_form' method="post">
+                {% csrf_token %}
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                <input type="hidden" id="edit_id" name="edit_id" value="">
+                <div class="input-box">
+                    <div class="form-text-wrapper">
+                        <ion-icon name="pencil-outline"></ion-icon>
+                        <Label for="">New Comment Text</Label>
+                    </div>
+                    <textarea id="edit_comment_box" type="text" name="comment" placeholder="Write Comment Here" required></textarea>
+                </div>
+                <div class="submit-button">
+                    <button>Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="delete_comment_form">
+        <h1 id="page-header">Delete Comment</h1>
+        <button id="hide_form_button" onclick="hide_popup('delete')"><ion-icon name="close-circle-outline"></ion-icon></button>
+        <p>Enter the admin password to confirm deletion.</p>
+        <div class="form-value">
+            <form enctype="multipart/form-data" id='delete_comment_form' method="post">
+                {% csrf_token %}
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                <input type="hidden" id="delete_id" name="delete_id" value="">
+                <div class="input-box">
+                    <div class="form-text-wrapper">
+                        <ion-icon name="person-outline"></ion-icon>
+                        <Label for="">Admin Password</Label>
+                    </div>
+                    <input type="password" id="password" name="delete_password" placeholder="Admin Password" required>
+                </div>
+                <div class="submit-button">
+                    <button>Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="star_comment_form">
+        <h1 id="page-header">Star Comment</h1>
+        <button id="hide_form_button" onclick="hide_popup('star')"><ion-icon name="close-circle-outline"></ion-icon></button>
+        <p>Enter the admin password to confirm change of starred status.</p>
+        <p id="starred_status_text"></p>
+        <div class="form-value">
+            <form enctype="multipart/form-data" id='star_comment_form' method="post">
+                {% csrf_token %}
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                <input type="hidden" id="star_id" name="star_id" value="">
+                <input type="hidden" id="hidden_star_value" name="hidden_star_value">
+                <div class="input-box">
+                    <div class="form-text-wrapper">
+                        <ion-icon name="person-outline"></ion-icon>
+                        <Label for="">Admin Password</Label>
+                    </div>
+                    <input type="password" id="password" name="star_password" placeholder="Admin Password" required>
+                </div>
+                <div class="submit-button">
+                    <button>Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% for comment in comments %}
+        {% if user == comment.user %}
+        <div class="speech-bubble-right">
+            <div class="speech-bubble-box-right">
+                <div class="speech-contents-wrapper">
+                    <div class="speech-bubble-header">
+                        <img class="speech-bubble-profile-pic" src="/media/{{ comment.user.picture }}">
+                        <p id="comment-user">You</p>
+                        <div class="comments-edit-buttons right">
+                            {% if user == comment.user %}
+                                <button onclick="show_popup('edit','{{ comment.id }}','{{ comment.comment.strip }}')"><ion-icon name="create-outline"></ion-icon></button>
+                            {% endif %}
+                            {% if user.adminStatus %}
+                                 <button onclick="show_popup('delete','{{ comment.id }}',false)"><ion-icon name="trash-outline"></ion-icon></button>
+                                 <button onclick="show_popup('star','{{ comment.id }}',{{ comment.starred|lower }})"><ion-icon name="star{% if not comment.starred %}-outline{% endif %}"></ion-icon></button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="speech-bubble-comment">
+                        {{ comment.comment }}
+                        <br>
+                        <p class="comment-date-stamp">Posted {{ comment.dateAdded }}{% if show_comment_links %} on <a href="{% url 'booking' comment.booking.id %}">Booking {{ comment.booking.id }}</a>{% endif %}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="speech-bubble-tail-right-container">
+                <div class="speech-bubble-tail-right">
+
+                </div>
+            </div>
+        </div>
+        <br>
+        {% else %}
+        <div class="speech-bubble-left">
+            <div class="speech-bubble-tail-left"></div>
+            <div class="speech-bubble-box-left">
+                <div class="speech-bubble-header">
+                    <img class="speech-bubble-profile-pic" src="/media/{{ comment.user.picture }}">
+                    <p id="comment-user">{{ comment.user.first_name}} {{ comment.user.last_name}}</p>
+                    <div class="comments-edit-buttons left">
+                            {% if user == comment.user %}
+                                <button onclick="show_popup('edit','{{ comment.id }}','{{ comment.comment }}')"><ion-icon name="create-outline"></ion-icon></button>
+                            {% endif %}
+                            {% if user.adminStatus %}
+                                 <button onclick="show_popup('delete','{{ comment.id }}',false)"><ion-icon name="trash-outline"></ion-icon></button>
+                                 <button onclick="show_popup('star','{{ comment.id }}',{{ comment.starred|lower }})"><ion-icon name="star{% if not comment.starred %}-outline{% endif %}"></ion-icon></button>
+                            {% endif %}
+                    </div>
+                </div>
+                <div class="speech-bubble-comment">
+                    {{ comment.comment }}
+                    <br>
+                    <p class="comment-date-stamp">Posted {{ comment.dateAdded }}{% if show_comment_links %} on <a href="{% url 'booking' comment.booking.id %}">Booking {{ comment.booking.id }}</a>{% endif %}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <br>
+    {% endfor %}
+{% else %}
+    <div class="bubble-text">
+        <p>There are currently no comments.</p>
+    </div>
+{% endif %}

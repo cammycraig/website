@@ -1,0 +1,212 @@
+{% extends 'gearstore/base.html' %}
+{% load static %}
+{% load gearstore_template_tags %}
+
+{% block head_block %}
+    <script src="{% static 'gearstore/js/show_popup.js' %}"></script>
+{% endblock %}
+
+{% block title_block %}
+    {% if category %}
+        {{ category.name }}
+    {% else %}
+        Missing Category
+    {% endif %}
+{% endblock %}
+
+{% block body_block %}
+    {% if admin %}
+        <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="add_gear_popup">
+            <button id="hide_form_button" onclick="hide_generic_popup('add_gear_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+            <h1 id="page-header">Add Gear</h1>
+            <div class="form-value">
+                <form enctype="multipart/form-data" id='gear_form' method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="add-gear" value="add-gear">
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <Label for="">Gear Name</Label>
+                        </div>
+                        <input type="text" name="name" placeholder="Gear name" required>
+                    </div>
+
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="mail-outline"></ion-icon>
+                            <Label for="">Description</Label>
+                        </div>
+                        <input type="text" name="description" placeholder="Description" required>
+                    </div>
+
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="wallet-outline"></ion-icon>
+                            <Label for="">Deposit</Label>
+                        </div>
+                        <input type="text" name="deposit" placeholder="Free" value="Free" required>
+                    </div>
+
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="resize-outline"></ion-icon>
+                            <Label for="">Size</Label>
+                        </div>
+                        <input type="text" name="size" placeholder="Size" required>
+                    </div>
+
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="image-outline"></ion-icon>
+                            <Label for="">Gear Image</Label>
+                        </div>
+                        <input type="file" name="picture" accept="image/*">
+                    </div>
+
+                    <div class="submit-button">
+                        <button>Add</button>
+                    </div>
+                </form>
+            </div>
+            {% if errors %}
+                <ul class='form-errors'>
+                    <li class="error-warning">An error has occurred:</li>
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <br>
+            {% endif %}
+        </div>
+        <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="edit_category_popup">
+            <button id="hide_form_button" onclick="hide_generic_popup('edit_category_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+            <h1 id="page-header">Edit {{ category.name }}</h1>
+            <div class="form-value">
+                <form enctype="multipart/form-data" id='category_form' method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="edit-category" value="edit-category">
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <Label for="">Category Name</Label>
+                        </div>
+                        <input type="text" name="name" placeholder="category name" value="{{ category.name }}" required>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="mail-outline"></ion-icon>
+                            <Label for="">Description</Label>
+                        </div>
+                        <input type="text" name="description" placeholder="description" value="{{ category.description }}" required>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="image-outline"></ion-icon>
+                            <Label for="">Category Image</Label>
+                        </div>
+                        <input type="file" name="picture" accept="image/*">
+                    </div>
+                    <div class="submit-button">
+                        <button>Submit Changes</button>
+                    </div>
+                </form>
+            </div>
+            {% if errors %}
+                <ul class='form-errors'>
+                    <li class="error-warning">An error has occurred:</li>
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <br>
+            {% endif %}
+        </div>
+        <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="delete_category_popup">
+            <button id="hide_form_button" onclick="hide_generic_popup('delete_category_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+            <h1 id="page-header">Delete {{ category.name }}</h1>
+            <div class="form-value">
+                <form enctype="multipart/form-data" id='gear_form' method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="delete-category" value="delete-category">
+                    <div class="bubble-text">
+                        <p>Enter the admin password to confirm deletion.</p>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <Label for="">Admin Password</Label>
+                        </div>
+                        <input type="password" name="password" placeholder="Admin Password" required>
+                    </div>
+                    <div class="submit-button">
+                        <button>Delete</button>
+                    </div>
+                </form>
+            </div>
+            {% if errors %}
+                <ul class='form-errors'>
+                    <li class="error-warning">An error has occurred:</li>
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <br>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if category %}
+        <div class="gear-view-contents">
+            <div class="top-image" style="background-image: url('/media/{{ category.picture }}')">
+                <div class="top-image-overlay">
+                    <h1 id="image-overlay-header">{{ category.name }}</h1>
+                    {% if admin %}
+                        <a id="edit-button-parent" class="edit-delete-button-parent" onclick="show_generic_popup('edit_category_popup')"><img id="edit-button" class="edit-delete-button" src='{% static 'gearstore/images/edit_symbol.png' %}'></a>
+                        <a id="delete-button-parent" class="edit-delete-button-parent" onclick="show_generic_popup('delete_category_popup')"><img id="delete-button" class="edit-delete-button" src='{% static 'gearstore/images/delete_symbol.png' %}'></a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="text-widget" id="category-view-text-widget">
+                <div id="number-total-section" class="widget-section">
+                    <p class="widget-label">Total No.</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ total }}</p>
+                    </div>
+                </div>
+                <div id="number-available-section" class="widget-section">
+                    <p class="widget-label">No. Available</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ available }}</p>
+                    </div>
+                </div>
+                <div id="date-added-section" class="widget-section">
+                    <p class="widget-label">Added</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ category.dateAdded }}</p>
+                    </div>
+                </div>
+            </div>
+            {% show_description category.description %}
+        </div>
+        {% if gear or admin %}
+            <br>
+            <br>
+            {% show_size_filter_bar gear %}
+            {% show_availability_filter_bar %}
+            <div class="menu-container">
+                {% if gear %}
+                    {% for piece_of_gear in gear %}
+                        <a href="{% url 'view-gear' piece_of_gear.slug %}" class="menu-card-link menu-card-size-{{ piece_of_gear.size|id_slugify }} menu-card-status-{{ piece_of_gear|get_status }}" style="background-image: url('/media/{{ piece_of_gear.picture }}')"><div class="menu-card"><p>{{ piece_of_gear.name }}</p></div></a>
+                    {% endfor %}
+                {% endif %}
+                {% if admin %}
+                    <a id="add-button" onclick="show_generic_popup('add_gear_popup')" class="menu-card-link add-menu-card" style="background-image: url('{% static 'gearstore/images/plus_symbol.png' %}')"><div class="menu-card"><p></p></div></a>
+                {% endif %}
+            </div>
+        {% else %}
+            <strong>No gear currently in category.</strong>
+        {% endif %}
+    {% else %}
+        <h1 id="page-header">Missing Category</h1>
+        <p>Error: No such category exists.</p>
+    {% endif %}
+{% endblock %}

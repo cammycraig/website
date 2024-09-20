@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class PortfolioAppConfig(AppConfig):
-    name = 'portfolio'
+    name = 'portfolio_app'

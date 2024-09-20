@@ -1,0 +1,106 @@
+{% extends 'gearstore/base.html' %}
+{% load gearstore_template_tags %}
+{% load static %}
+
+{% block title_block %}
+    My Account
+{% endblock %}
+
+{% block head_block %}
+    <script src="{% static 'gearstore/js/showForm.js' %}"></script>
+    <script src="{% static 'gearstore/js/passwordCheck.js' %}"> </script>
+{% endblock %}
+
+{% block body_block %}
+    <h1 id="page-header">My Account</h1>
+    <div id="account-header">
+        <img class="profile-picture" src="/media/{{ user_profile.picture }}">
+        <div id="welcome-buttons-holder">
+            <div id="welcome-text">
+                <p id="welcome-text-welcome">Welcome,</p>
+                <p id="welcome-text-username">{{user_profile.first_name}} {{ user_profile.last_name }}</p>
+            </div>
+            <div id="manage-buttons">
+                <button id="action-button" onclick="showHiddenForm()">Manage Account</button>
+                <a href="{% url 'logout' %}"><button id="logout-button">Logout</button></a>
+            </div>
+        </div>
+    </div>
+    <div class="form-container" id="account-change-form">
+        <div class="form-value">
+            <form enctype="multipart/form-data" method="post" action="{% url 'account' %}">
+                {% csrf_token %}
+                <div class="input-box">
+                    <div class="icon-input-segment">
+                        <ion-icon name="person-outline"></ion-icon>
+                        <Label for="">First Name</Label>
+                    </div>
+                    <input id="text-input" type="text" name="first_name" placeholder="Jane">
+                </div>
+                <div class="input-box">
+                    <div class="icon-input-segment">
+                        <ion-icon name="person-outline"></ion-icon>
+                        <Label for="">Last Name</Label>
+                    </div>
+                    <input id="text-input" type="text" name="last_name" placeholder="Doe">
+                </div>
+                <div class="input-box">
+                    <div class="icon-input-segment">
+                        <ion-icon name="image-outline"></ion-icon>
+                        <Label for="">Profile Picture</Label>
+                    </div>
+                    <input id="file-choice" type="file" name="picture" accept="image/*">
+                </div>
+                <div class="input-box">
+                    <div class="icon-input-segment">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <Label for="">Admin Password</Label>
+                    </div>
+                    {% if nopass %}
+                         <input type="password" name="password" id="password" placeholder="Set Admin Password">
+                    {% else %}
+                        {% if user_profile.adminStatus %}
+                            <input type="password" name="password" id="password" placeholder="New Admin Password">
+                        {% else %}
+                            <input type="password" name="password" id="password" placeholder="Become Admin">
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="submit-button">
+                    <button>Submit</button>
+                </div>
+            </form>
+        </div>
+        {% if errors %}
+            <ul class='form-errors'>
+                <li class="error-warning">An error has occurred:</li>
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            <br>
+        {% endif %}
+    </div>
+    {% if form_open == True %}
+        <script type="text/javascript">
+            showHiddenForm()
+        </script>
+    {% endif %}
+
+    <h2 id="borrow-menu-toggle">
+        <Button class="borrow-menu-title rainbow-anim" id="user-bookings-title" onclick="setBorrowMenu('user')">My Borrowed Gear</Button>
+        {% if user_profile.adminStatus %}
+            | <Button class="borrow-menu-title" onclick="setBorrowMenu('all')" id="all-bookings-title">All Borrowed Gear</Button>
+        {% endif %}
+    </h2>
+
+    <div id="user-bookings">
+        {% show_user_bookings user_profile %}
+    </div>
+
+    {% if user_profile.adminStatus %}
+        <div id="all-bookings" style="display: none;">
+            {% show_all_bookings %}
+        </div>
+    {% endif %}
+{% endblock %}

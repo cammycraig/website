@@ -1,0 +1,283 @@
+{% extends 'gearstore/base.html' %}
+{% load static %}
+{% load gearstore_template_tags %}
+
+{% block head_block %}
+    <script src="{% static 'gearstore/js/show_popup.js' %}"></script>
+{% endblock %}
+
+{% block title_block %}
+    {% if gear %}
+        {{ gear.name }}
+    {% else %}
+        Missing Gear
+    {% endif %}
+{% endblock %}
+
+{% block body_block %}
+    {% if admin %}
+        <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="edit_gear_popup">
+            <button id="hide_form_button" onclick="hide_generic_popup('edit_gear_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+            <h1 id="page-header">Edit {{ gear.name }}</h1>
+            <div class="form-value">
+                <form enctype="multipart/form-data" id='gear_form' method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="edit-gear" value="edit-gear">
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <Label for="">Gear Name</Label>
+                        </div>
+                        <input type="text" name="name" placeholder="gear name" value="{{ gear.name }}" required>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="stats-chart-outline"></ion-icon>
+                            <Label for="">Change Status</Label>
+                        </div>
+                        <div id="dropdown-selector">
+                            <select name="status" id="dropdown" required>
+                            {% if gear_status_options %}
+                                {% for option in gear_status_options %}
+                                    {% if option.0 == gear.status %}
+                                        <option value="{{ option.0 }}" selected>{{ option.1 }}</option>
+                                    {% else %}
+                                        <option value="{{ option.0 }}">{{ option.1 }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="pencil-outline"></ion-icon>
+                            <Label for="">Deposit Required</Label>
+                        </div>
+                        <input type="text" name="deposit" placeholder="deposit" value="{{ gear.deposit }}" required>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="pencil-outline"></ion-icon>
+                            <Label for="">Description</Label>
+                        </div>
+                        <input type="text" name="description" placeholder="description" value="{{ gear.description }}" required>
+                    </div>
+
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="image-outline"></ion-icon>
+                            <Label for="">Gear Image</Label>
+                        </div>
+                        <input type="file" name="picture" accept="image/*">
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="resize-outline"></ion-icon>
+                            <Label for="">Size</Label>
+                        </div>
+                        <input type="text" name="size" placeholder="size" value="{{ gear.size }}" required>
+                    </div>
+                    <div class="submit-button">
+                        <button>Submit Changes</button>
+                    </div>
+                </form>
+            </div>
+            {% if errors %}
+                <ul class='form-errors'>
+                    <li class="error-warning">An error has occurred:</li>
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <br>
+            {% endif %}
+        </div>
+        <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="delete_gear_popup">
+            <button id="hide_form_button" onclick="hide_generic_popup('delete_gear_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+            <h1 id="page-header">Delete {{ gear.name }}</h1>
+            <div class="form-value">
+                <form enctype="multipart/form-data" id='gear_form' method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="delete-gear" value="delete-gear">
+                    <div class="bubble-text">
+                        <p>Enter the admin password to confirm deletion.</p>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <Label for="">Admin Password</Label>
+                        </div>
+                        <input type="password" name="password" placeholder="Admin Password" required>
+                    </div>
+                    <div class="submit-button">
+                        <button>Delete</button>
+                    </div>
+                </form>
+            </div>
+            {% if errors %}
+                <ul class='form-errors'>
+                    <li class="error-warning">An error has occurred:</li>
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <br>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if gear %}
+        <div class="gear-view-contents">
+            <div class="top-image" style="background-image: url('/media/{{ gear.picture }}')">
+                <div class="top-image-overlay">
+                    <h1 id="image-overlay-header">{{ gear.name }}</h1>
+                    {% if admin %}
+                        <a id="edit-button-parent" class="edit-delete-button-parent" onclick="show_generic_popup('edit_gear_popup')"><ion-icon id="edit-button" class="edit-delete-button" name="create-outline"></ion-icon></a>
+                        <a id="delete-button-parent" class="edit-delete-button-parent" onclick="show_generic_popup('delete_gear_popup')"><ion-icon id="delete-button" class="edit-delete-button" name="trash-outline"></ion-icon></a>
+                    {% endif %}
+                </div>
+            </div>
+            <div id="gear-view-text-widget" class="text-widget">
+                <div id="category-section" class="widget-section">
+                    <p class="widget-label">Category</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text"><a href="{% url 'view-category' category.slug %}">{{ gear.category }}</a></p>
+                    </div>
+                </div>
+                <div id="borrow-status-section" class="widget-section">
+                    <p class="widget-label">Status</p>
+                    <div class="widget-bottom">
+                    {% if gear.status == "In Service" %}
+                        {% if available %}
+                            <p class="widget-text">Available</p>
+                        {% else %}
+                            <p class="widget-text">Borrowed</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="widget-text">{{ gear.status }}</p>
+                    {% endif %}
+                    </div>
+                </div>
+                <div id="deposit-section" class="widget-section">
+                    <p class="widget-label">Deposit Required</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ gear.deposit }}</p>
+                    </div>
+                </div>
+                <div id="size-section" class="widget-section">
+                    <p class="widget-label">Size</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ gear.size.title }}</p>
+                    </div>
+                </div>
+            </div>
+            {% show_description gear.description %}
+        </div>
+        {% if not available %}
+            {% if active_booking.user == user_profile %}
+                <div class="bubble-text">
+                    <p>You are currently borrowing this item.</p>
+                    <p>It is due to be returned on {{ active_booking.dateToReturn}}.</p>
+                    <p><a href="{% url 'booking' active_booking.id %}">Link to Current Booking</a></p>
+                </div>
+            {% else %}
+                <div class="bubble-text">
+                    <p>You cannot currently borrow this item as it has already been borrowed.</p>
+                    <p>It is due to be returned on {{ active_booking.dateToReturn}}.</p>
+                    {% if active_booking.purpose != primary_purpose %}
+                        <p>As this item is only borrowed as a {{ active_booking.purpose }} booking, it may still be possible to borrow it if you get in touch.</p>
+                        {% if admin %}
+                            <p><a href="{% url 'booking' active_booking.id %}">Link to Current Booking</a></p>
+                        {% endif %}
+                    {% endif %}
+                {% if content %}
+                    <br>
+                    <p>If you have any queries, please use the following contact to reach out:</p>
+                    <br>
+                    <div id="contact-container-parent">
+                        <div id="contact-container">
+                            <ion-icon name="{{ content.contact_option }}"></ion-icon>
+                            <p>{{ content.contact }}</p>
+                        </div>
+                    </div>
+                    <br>
+                {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <p>Not currently borrowed</p>
+            <div class="borrow-button">
+                <button id="action-button" onclick="show_generic_popup('booking_popup')">Borrow</button>
+            </div>
+            {% if user.is_authenticated %}
+                <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="booking_popup">
+                    <h1 id="page-header">Make Booking</h1>
+                    <button id="hide_form_button" onclick="hide_generic_popup('booking_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+                    <p id="starred_status_text"></p>
+                    <div class="form-value">
+                        <form enctype="multipart/form-data" id='edit_booking' method="post">
+                            {% csrf_token %}
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                            <div class="input-box">
+                                <div class="form-text-wrapper">
+                                    <ion-icon name="stats-chart-outline"></ion-icon>
+                                    <Label for="">Purpose</Label>
+                                </div>
+                                <div id="dropdown-selector">
+                                    <select name="purpose" id="dropdown" required>
+                                    {% if purpose_options %}
+                                        {% for option in purpose_options %}
+                                            {% if option.0 == booking.purpose %}
+                                                <option value="{{ option.0 }}" selected>{{ option.1 }}</option>
+                                            {% else %}
+                                                <option value="{{ option.0 }}">{{ option.1 }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="input-box">
+                                <div class="form-text-wrapper">
+                                    <ion-icon name="calendar-outline"></ion-icon>
+                                    <Label for="">Return Date</Label>
+                                </div>
+                                <input type="date" name="dateToReturn" min="{% get_date "min" %}" max="{% get_date "max" %}" value="{% get_date "default" %}" required>
+                            </div>
+                            <div class="submit-button">
+                                <button>Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <p>Please log in to borrow this item!</p>
+                <p><a href="{% url 'login' %}">Login</a></p>
+            {% endif %}
+        {% endif %}
+        <br>
+        {% if admin %}
+            <h3>Bookings of {{ gear.name }}</h3>
+            <br>
+            <div id="gear-bookings">
+                {% show_gear_bookings gear %}
+            </div>
+            <br>
+            <div id="comments-section">
+                <h3 id="booking-comments">Comments:</h3>
+                {% show_starred_gear_comments gear user_profile %}
+                <br>
+                <br>
+                <br>
+                <br>
+            </div>
+        {% endif %}
+    {% else %}
+        <h1 id="page-header">Missing Gear</h1>
+        <div class="bubble-text">
+            <p>Error: No such piece of gear exists.</p>
+        </div>
+    {% endif %}
+{% endblock %}

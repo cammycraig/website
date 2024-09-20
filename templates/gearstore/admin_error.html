@@ -1,0 +1,12 @@
+{% extends 'gearstore/base.html' %}
+{% load static %}
+
+{% block title_block %}
+    Admin Error
+{% endblock %}
+
+{% block body_block %}
+    <h1 id="page-header">Admin Error</h1>
+    <p>You cannot see this page as you are not a site admin.</p>
+    <p><a href="{% url 'account' %}">Please visit your Account page to become an admin.</a></p>
+{% endblock %}

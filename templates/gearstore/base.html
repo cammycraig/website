@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang='en'>
+{% load static %}
+{% load gearstore_template_tags %}
+
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+        <link rel="stylesheet" href="{% static 'gearstore/css/main.css' %}">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <link rel="icon" type="image/png" href="{% get_icon %}"/>
+        {% block head_block %}
+
+        {% endblock %}
+    </head>
+
+    <title>
+        {% block title_block %}
+            Gear Store
+        {% endblock %}
+    </title>
+
+    <!-- Photo by <a href="https://unsplash.com/@samferrara?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Samuel Ferrara</a> on <a href="https://unsplash.com/images/nature/mountain?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
+   -->
+    <body style="background-image: {% get_background %}">
+        <header>
+            <div class="top-bar">
+                <img id="header-logo-image" src="{% get_icon %}">
+                <h1><a href="{% url 'index' %}">{% get_title %}</a></h1>
+
+                <ul class="loginOrAccountLinks">
+                {% if user.is_authenticated or admin or user.adminStatus or user.first_name %}
+                    <li><a href="{% url 'account' %}">My Account</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    <li><a href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+                </ul>
+            </div>
+
+            <ul class="navbar">
+                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'find-gear' %}">Borrow Gear</a></li>
+                <li><a href="{% url 'contact' %}">Contact Us</a></li>
+            </ul>
+        </header>
+        <article>
+            <div id="main-body">
+                <div id="left-sidebar" class="body-column">
+                    <h3>Gear Types</h3>
+                    <ul>
+                        {% if categories %}
+                            {% for c in categories %}
+                                {% if c == category %}
+                                    <li class="sidebar-link">
+                                        <a href="{% url 'view-category' c.slug %}">>> {{ c.name }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="sidebar-link">
+                                        <a href="{% url 'view-category' c.slug %}">{{ c.name }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <li><strong>There are no categories present.</strong></li>
+                        {% endif %}
+
+                    </ul>
+
+                </div>
+
+                <div id="content" class="body-column">
+                    {% block body_block %}
+                    {% endblock %}
+                    <br>
+                    <br>
+                </div>
+
+                <div id="right-sidebar" class="body-column">
+                    <h3>Useful Links</h3>
+                    {% show_right_sidebar_links %}
+                </div>
+            </div>
+            <br>
+        </article>
+        <footer style="background-image: {% get_background %}">
+            <p class="copyright">Copyright Cammy Craig & Group 10E</p>
+        </footer>
+    </body>
+</html>

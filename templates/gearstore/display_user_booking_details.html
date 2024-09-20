@@ -1,0 +1,27 @@
+{% load gearstore_template_tags %}
+<div class="text-widget" id="user-booking-view-text-widget" style="background-color: {% get_colour booking.id %};">
+    <div id="gear-item-section" class="widget-section">
+        <p class="widget-label">Gear Item</p>
+        <div class="widget-bottom">
+           <p class="widget-text"><a href="{% url 'view-gear' booking.gearItem.slug %}">{{ booking.gearItem.name }}</a></p>
+        </div>
+    </div>
+    <div id="return-date-section" class="widget-section">
+        <p class="widget-label">Borrowed Until</p>
+        <div class="widget-bottom">
+            <p class="widget-text">{{ booking.dateToReturn }}</p>
+        </div>
+    </div>
+    <div id="borrow-status-section" class="widget-section">
+        <p class="widget-label">Status</p>
+        <div class="widget-bottom">
+            <p class="widget-text">{{ booking.status }}</p>
+        </div>
+    </div>
+    <div id="booking-link-section" class="widget-section">
+        <p class="widget-label">Booking</p>
+        <div class="widget-bottom">
+            <p class="widget-text"><a href="{% url 'booking' booking.id %}">{{ booking.purpose }} Booking</a></p>
+        </div>
+    </div>
+</div>

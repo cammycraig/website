@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.urls import path, include
 from portfolio_app import views
 
-app_name = 'portfolio'
+app_name = 'portfolio_app'
 
 urlpatterns = [
     path('', views.index, name='index'),

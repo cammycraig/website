@@ -15,7 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from portfolio_app import views
+import portfolio_app
+import gearstore_app
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -24,4 +25,4 @@ urlpatterns = [
     path('portfolio_app/', include('portfolio_app.urls')),
     path('gearstore_app/', include('gearstore_app.urls')),
     path('admin/', admin.site.urls),
-] #+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

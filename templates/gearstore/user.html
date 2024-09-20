@@ -1,0 +1,70 @@
+{% extends 'gearstore/base.html' %}
+{% load gearstore_template_tags %}
+{% load static %}
+
+{% block title_block %}
+    {% if user_page_profile %}
+        {{ user_page_profile.first_name }} {{ user_page_profile.last_name }}'s Account
+    {% else %}
+        Missing Account
+    {% endif %}
+{% endblock %}
+
+{% block body_block %}
+    {% if user_page_profile %}
+        <h1 id="page-header">{{ user_page_profile.first_name }} {{ user_page_profile.last_name }}'s Account</h1>
+        <div id="account-header" class="admin-user-view-header">
+            <img class="profile-picture" src="/media/{{ user_page_profile.picture }}">
+            <div id="welcome-buttons-holder">
+                <div id="welcome-text">
+                    <p id="welcome-text-username">{{user_page_profile.first_name}} {{ user_page_profile.last_name }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="gear-view-contents">
+            <div class="text-widget" id="user-text-widget">
+                <div id="username-section" class="widget-section">
+                    <p class="widget-label">Username</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ user_page_profile.user.username }}</p>
+                    </div>
+                </div>
+                <div id="name-section" class="widget-section">
+                    <p class="widget-label">Name</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{user_page_profile.first_name}} {{ user_page_profile.last_name }}</p>
+                    </div>
+                </div>
+                <div id="booking-link-section" class="widget-section">
+                    <p class="widget-label">Admin Status</p>
+                    <div class="widget-bottom">
+                        {% if user_page_profile.adminStatus %}
+                            <p class="widget-text">Admin</p>
+                        {% else %}
+                            <p class="widget-text">Not Admin</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="text-widget" id="contact-detail-view-text-widget">
+                <div id="borrower-contact-section" class="widget-section">
+                    <p class="widget-label">User Contact Email</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ user_page_profile.user.email }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <h3>{{user_page_profile.first_name}} {{ user_page_profile.last_name }}'s Bookings</h3>
+        <br>
+        <div id="user-bookings">
+            {% show_user_bookings user_page_profile %}
+        </div>
+
+    {% else %}
+        <h1 id="page-header">Missing Account</h1>
+        <p>Error: No such username exists.</p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends '../gearstore/base.html' %}
+
+{% block title_block %}
+    Missing Page
+{% endblock %}
+
+{% block body_block %}
+    <h1 id="page-header">Missing Page Error</h1>
+    <div class="bubble-text">
+        <p>The page you have requested does not exist! Please return <a href="{% url 'index' %}">Home</a>.</p>
+    </div>
+{% endblock %}

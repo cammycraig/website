@@ -1,0 +1,186 @@
+{% extends 'gearstore/base.html' %}
+{% load gearstore_template_tags %}
+{% load static %}
+
+{% block head_block %}
+    <script src="{% static 'gearstore/js/showForm.js' %}"></script>
+    <script src="{% static 'gearstore/js/show_popup.js' %}"></script>
+{% endblock %}
+
+{% block title_block %}
+    {% if booking %}
+        Booking {{ booking.id }}
+    {% else %}
+        Missing Booking
+    {% endif %}
+{% endblock %}
+
+{% block body_block %}
+    {% if booking %}
+        <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="edit_booking_popup">
+            <h1 id="page-header">Edit Booking</h1>
+            <button id="hide_form_button" onclick="hide_generic_popup('edit_booking_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+            <p id="starred_status_text"></p>
+            <div class="form-value">
+                <form enctype="multipart/form-data" id='edit_booking' method="post">
+                    {% csrf_token %}
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="stats-chart-outline"></ion-icon>
+                            <Label for="">Change Status</Label>
+                        </div>
+                        <div id="dropdown-selector">
+                            <select name="status" id="dropdown" required>
+                            {% if options %}
+                                {% for option in options %}
+                                    {% if option.0 == booking.status %}
+                                        <option value="{{ option.0 }}" selected>{{ option.1 }}</option>
+                                    {% else %}
+                                        <option value="{{ option.0 }}">{{ option.1 }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="stats-chart-outline"></ion-icon>
+                            <Label for="">Change Purpose</Label>
+                        </div>
+                        <div id="dropdown-selector">
+                            <select name="purpose" id="dropdown" required>
+                            {% if purpose_options %}
+                                {% for option in purpose_options %}
+                                    {% if option.0 == booking.purpose %}
+                                        <option value="{{ option.0 }}" selected>{{ option.1 }}</option>
+                                    {% else %}
+                                        <option value="{{ option.0 }}">{{ option.1 }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                            <Label for="">Change Return Date</Label>
+                        </div>
+                        <input type="date" name="dateToReturn" min="{% get_date "min" %}" max="{% get_date "max" %}" value="{{ booking.dateToReturn|date:"Y-m-d" }}" required>
+                    </div>
+                    <div class="submit-button">
+                        <button>Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="gear-view-contents">
+            <div class="top-image" style="background-image: url('/media/{{ booking.gearItem.picture }}')">
+                <div class="top-image-overlay">
+                    <h1 id="image-overlay-header">Booking of {{ booking.gearItem.name }} by {{ booking.user.first_name }} {{ booking.user.last_name }}</h1>
+                    {% if admin %}
+                        <a id="edit-button-parent" class="edit-delete-button-parent" onclick="show_generic_popup('edit_booking_popup')"><ion-icon id="edit-button" class="edit-delete-button" name="create-outline"></ion-icon></a>
+                    {% endif %}
+                </div>
+            </div>
+            {% if qr_code %}
+                <img class="center-image" src="/media/{{ qr_code }}">
+            {% endif %}
+            <div class="text-widget" id="booking-details-text-widget" style="background-color: {% get_colour booking.id %};">
+                <div id="status-section" class="widget-section">
+                    <p class="widget-label">Status</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ booking.status }}</p>
+                    </div>
+                </div>
+                <div id="purpose-section" class="widget-section">
+                    <p class="widget-label">Purpose</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ booking.purpose }}</p>
+                    </div>
+                </div>
+                <div id="deposit-section" class="widget-section">
+                    <p class="widget-label">Deposit Required</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ booking.gearItem.deposit }}</p>
+                    </div>
+                </div>
+                <div id="return-date-section" class="widget-section">
+                    <p class="widget-label">Borrowed Until</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ booking.dateToReturn }}</p>
+                    </div>
+                </div>
+                <div id="item-section" class="widget-section">
+                    <p class="widget-label">Item</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text"><a href="{% url 'view-gear' booking.gearItem.slug %}">{{  booking.gearItem }}</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-widget" id="booking-reference-text-widget">
+                <div id="user-borrower-section" class="widget-section">
+                    <p class="widget-label">User</p>
+                    <div class="widget-bottom">
+                        <div id="profile-pic-and-name">
+                            <img id="small-profile-pic" src="/media/{{ booking.user.picture }}">
+                            <p class="widget-text" id="user-name-text"><a href="{% url 'user' booking.user.user.username %}">{{ booking.user.first_name }} {{ booking.user.last_name }}</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div id="booking-link-section" class="widget-section">
+                    <p class="widget-label">Booking Reference</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ booking.id }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-widget" id="contact-detail-view-text-widget">
+                <div id="borrower-contact-section" class="widget-section">
+                    <p class="widget-label">User Contact Email</p>
+                    <div class="widget-bottom">
+                        <p class="widget-text">{{ booking.user.user.email }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="comments-section">
+            <h3 id="booking-comments">Comments on Changes to Gear Condition:</h3>
+            {% show_all_booking_comments booking user %}
+
+            <div id="centered-button-container">
+                <button id="action-button" onclick="showCommentForm()">Add Comment</button>
+            </div>
+        </div>
+        <div id="add-comment-form">
+            <form enctype="multipart/form-data" id='edit-about-form' method="post" action="{% url "booking" booking.id %}">
+                {% csrf_token %}
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                <div class="input-box">
+                    <div class="form-text-wrapper">
+                        <ion-icon name="pencil-outline"></ion-icon>
+                        <Label for="">Comment Text</Label>
+                    </div>
+                    <textarea type="text" name="comment" placeholder="Write Comment Here" required></textarea>
+                </div>
+                <div class="submit-button">
+                    <button>Submit</button>
+                </div>
+            </form>
+        </div>
+        {% if form_open == True %}
+            <script type="text/javascript">
+                showHiddenForm()
+            </script>
+        {% endif %}
+    {% else %}
+        <h1 id="page-header">Missing Booking</h1>
+        <p>Error! No such booking exists.</p>
+    {% endif %}
+{% endblock %}

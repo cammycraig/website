@@ -1,0 +1,60 @@
+{% extends 'gearstore/base.html' %}
+{% load static %}
+{% load gearstore_template_tags %}
+
+{% block head_block %}
+    <script src="{% static 'gearstore/js/show_popup.js' %}"></script>
+{% endblock %}
+
+{% block title_block %}
+    About Gear Store
+{% endblock %}
+
+{% block body_block %}
+    {% if admin %}
+        <div class="popup-form-container" style="display: none; background-image: {% get_background %}" id="edit_about_popup">
+            <h1 id="page-header">Edit About</h1>
+            <button id="hide_form_button" onclick="hide_generic_popup('edit_about_popup')"><ion-icon name="close-circle-outline"></ion-icon></button>
+            <div class="form-value">
+                <form enctype="multipart/form-data" id='edit_about_popup' method="post"
+                      action="{% url "about" %}">
+                    {% csrf_token %}
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+
+                    <div class="input-box">
+                        <div class="form-text-wrapper">
+                            <ion-icon name="pencil-outline"></ion-icon>
+                            <Label for="">About Page Text</Label>
+                        </div>
+                        {% if content %}
+                            <textarea type="text" name="about-text" placeholder="About Page Text" required>{{ content.about_contents }}</textarea>
+                        {% else %}
+                            <textarea type="text" name="about-text" placeholder="About Page Text" required></textarea>
+                        {% endif %}
+                    </div>
+
+                    <div class="submit-button">
+                        <button>Submit Changes</button>
+                    </div>
+                </form>
+            </div>
+            {% if errors %}
+                <ul class='form-errors'>
+                    <li class="error-warning">An error has occurred:</li>
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                <br>
+            {% endif %}
+        </div>
+        <a id="delete-button-parent" class="edit-delete-button-parent" onclick="show_generic_popup('edit_about_popup')"><ion-icon id="edit-button" class="edit-delete-button" name="create-outline"></ion-icon></a>
+    {% endif %}
+    <h1 id="page-header">About Gear Store</h1>
+    {% if content %}
+        <div class="bubble-text">{{ content.about_contents|linebreaks }}</div>
+    {% endif %}
+
+{% endblock %}

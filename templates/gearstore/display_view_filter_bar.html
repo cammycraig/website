@@ -1,0 +1,7 @@
+{% load static %}
+<div class="view-filter-bar">
+    <script src="{% static 'gearstore/js/updateBookingDisplays.js' %}"></script>
+    {% for view in booking_views %}
+        <button {% if view == "All" %}class="rainbow-anim" {% endif %}onclick="updateBookingDisplays({{ booking_views }}, '{{ view }}', '{{ order_id }}', '{{ section }}')" id="booking-filter-button-{{ view }}">{{ view }}</button>
+    {% endfor %}
+</div>
