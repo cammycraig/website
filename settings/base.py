@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+from manifest_loader.loaders import DefaultLoader
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -82,7 +84,16 @@ INSTALLED_APPS = [
     'django_extensions',
     'portfolio_app',
     'gearstore_app',
+    'qrcode',
+    'manifest_loader',
 ]
+
+MANIFEST_LOADER = {
+    'output_dir': None,  # where webpack outputs to, if not set, will search in STATICFILES_DIRS for the manifest.
+    'manifest_file': 'manifest.json',  # name of your manifest file
+    'cache': False,  # recommended True for production, requires a server restart to pick up new values from the manifest.
+    'loader': DefaultLoader  # how the manifest files are interacted with
+}
 
 MIDDLEWARE = [
     'django_hosts.middleware.HostsRequestMiddleware',
@@ -169,7 +180,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [STATIC_DIR, ]
+STATICFILES_DIRS = [
+    STATIC_DIR,
+]
 
 MEDIA_ROOT = MEDIA_DIR
 MEDIA_URL = '/media/'
